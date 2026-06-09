@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import '../controllers/cari_rute_controller.dart';
 import '../models/halte_model.dart';
 import '../models/wisata_model.dart';
+import '../services/api_service.dart';
 
 class CariRuteView extends StatefulWidget {
   final int? initialIdHalteAwal;
@@ -525,6 +526,7 @@ class _CariRuteViewState extends State<CariRuteView> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               child: Image.network(
                 data.gambarUrl!,
+                headers: ApiService.imageHeaders,
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,

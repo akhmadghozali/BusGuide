@@ -22,9 +22,17 @@ class JadwalForm
                     ->required(),
                 TimePicker::make('waktu_keberangkatan')
                     ->label('Waktu Keberangkatan')
+                    ->native(false)
+                    ->seconds(false)
+                    ->locale('id')
+                    ->displayFormat('H:i')
                     ->required(),
                 TimePicker::make('waktu_tiba')
                     ->label('Waktu Tiba')
+                    ->native(false)
+                    ->seconds(false)
+                    ->locale('id')
+                    ->displayFormat('H:i')
                     ->required(),
                 Select::make('status')
                     ->label('Status')

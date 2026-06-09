@@ -4,6 +4,7 @@ import '../models/halte_model.dart';
 import '../models/wisata_model.dart';
 import '../models/jadwal_model.dart';
 import '../models/rute_populer_model.dart';
+import '../models/notifikasi_model.dart';
 
 class ApiService {
   static const String baseUrl = 'https://fence-confined-drift.ngrok-free.dev/api';
@@ -12,6 +13,10 @@ class ApiService {
   static const Map<String, String> _headers = {
     'ngrok-skip-browser-warning': 'true',
     'Content-Type': 'application/json',
+  };
+
+  static const Map<String, String> imageHeaders = {
+    'ngrok-skip-browser-warning': 'true',
   };
 
   static Future<List<HalteModel>> fetchHalte() async {
@@ -86,5 +91,18 @@ class ApiService {
           .toList();
     }
     throw Exception('Gagal memuat rute populer (${response.statusCode})');
+  }
+
+  static Future<List<NotifikasiModel>> fetchNotifikasi() async {
+    final response = await http
+        .get(Uri.parse('$baseUrl/notifikasi'), headers: _headers)
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return (data['data'] as List)
+          .map((e) => NotifikasiModel.fromJson(e))
+          .toList();
+    }
+    throw Exception('Gagal memuat notifikasi (${response.statusCode})');
   }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\HalteController;
 use App\Http\Controllers\Api\WisataController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\CariRuteController;
+use App\Http\Controllers\Api\NotifikasiController;
 use Illuminate\Support\Facades\Route;
 
 // Halte
@@ -22,3 +23,6 @@ Route::get('/jadwal/halte/{id_halte}', [JadwalController::class, 'byHalte']);
 // Cari Rute
 Route::post('/cari-rute', [CariRuteController::class, 'store']);
 Route::get('/rute/populer', [CariRuteController::class, 'populer']);
+
+// Notifikasi
+Route::get('/notifikasi', [NotifikasiController::class, 'index']);

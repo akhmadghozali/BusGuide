@@ -44,9 +44,6 @@ class HalteForm
                     ->columnSpanFull(),
                 Textarea::make('fasilitas')
                     ->columnSpanFull(),
-                TextInput::make('radius_deteksi')
-                    ->numeric()
-                    ->suffix('meter'),
             ]);
     }
 }

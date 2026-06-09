@@ -862,6 +862,7 @@ class _HalteDetailSheetState extends State<_HalteDetailSheet>
                   const BorderRadius.vertical(top: Radius.circular(20)),
               child: Image.network(
                 w.gambarUrl!,
+                headers: ApiService.imageHeaders,
                 height: 150,
                 width: double.infinity,
                 fit: BoxFit.cover,

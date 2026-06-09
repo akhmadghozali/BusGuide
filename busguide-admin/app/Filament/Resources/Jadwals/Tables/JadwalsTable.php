@@ -14,13 +14,17 @@ class JadwalsTable
     {
         return $table
             ->columns([
+                TextColumn::make('halte_ids')
+                    ->label('ID Halte')
+                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : $state)
+                    ->searchable(),
                 TextColumn::make('waktu_keberangkatan')
                     ->label('Keberangkatan')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
                 TextColumn::make('waktu_tiba')
                     ->label('Waktu Tiba')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')

@@ -16,6 +16,5 @@ class Halte extends Model
         'alamat',
         'deskripsi',
         'fasilitas',
-        'radius_deteksi',
     ];
 }

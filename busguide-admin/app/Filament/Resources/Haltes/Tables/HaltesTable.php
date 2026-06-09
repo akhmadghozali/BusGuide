@@ -24,9 +24,6 @@ class HaltesTable
                     ->sortable(),
                 TextColumn::make('alamat')
                     ->searchable(),
-                TextColumn::make('radius_deteksi')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
