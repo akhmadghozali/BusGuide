@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bus Guide — Panduan Bus Malang Raya</title>
+  <meta name="description" content="Aplikasi panduan transportasi bus Malang Raya. Temukan rute bus, cek jadwal, lihat halte terdekat, dan jelajahi wisata sekitar halte." />
+  <link rel="icon" type="image/png" href="busguide/login/assets/icon/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-dark:   #0D47A1;
+      --blue:        #0056B3;
+      --blue-mid:    #2F80ED;
+      --blue-light:  #56CCF2;
+      --blue-splash: #202EF5;
+      --bg:          #F5F7F9;
+      --white:       #FFFFFF;
+      --text:        #1A1A2E;
+      --text-light:  #5A6478;
+      --border:      #E2E8F0;
+      --shadow:      0 4px 24px rgba(0,86,179,.12);
+      --shadow-lg:   0 12px 48px rgba(0,86,179,.18);
+      --radius:      20px;
+      --radius-sm:   12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    /* ============================================================
+       UTILITIES
+    ============================================================ */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 96px 0; }
+    .section-sm { padding: 64px 0; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(47,128,237,.12);
+      color: var(--blue-mid);
+      font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .badge svg { width: 14px; height: 14px; }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800; line-height: 1.2;
+      color: var(--text);
+    }
+    .section-sub {
+      font-size: 17px; color: var(--text-light);
+      margin-top: 12px; max-width: 560px;
+    }
+    .center { text-align: center; }
+    .center .section-sub { margin: 12px auto 0; }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226,232,240,.7);
+      transition: box-shadow .3s;
+    }
+    .navbar.scrolled { box-shadow: 0 2px 20px rgba(0,86,179,.1); }
+
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo img {
+      width: 38px; height: 38px; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,86,179,.25);
+    }
+    .nav-logo span {
+      font-size: 20px; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex; gap: 32px; align-items: center;
+    }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--text-light);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 15px;
+      padding: 12px 28px; border-radius: 100px;
+      cursor: pointer; border: none; transition: all .25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-mid), var(--blue));
+      color: white;
+      box-shadow: 0 6px 24px rgba(47,128,237,.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(47,128,237,.5);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+    .btn-outline:hover {
+      background: var(--blue);
+      color: white;
+    }
+    .btn-white {
+      background: white;
+      color: var(--blue);
+      box-shadow: 0 6px 24px rgba(0,0,0,.15);
+    }
+    .btn-white:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(0,0,0,.2);
+    }
+    .btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .nav-btn { padding: 10px 22px; font-size: 14px; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 6px; background: none; border: none;
+    }
+    .hamburger span {
+      width: 24px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all .3s;
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      padding-top: 68px;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #0D3B7A 0%, #0056B3 40%, #1a6fd4 70%, #2F80ED 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 50%, rgba(86,204,242,.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(32,46,245,.2) 0%, transparent 50%);
+    }
+
+    /* floating dots */
+    .hero-dots {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .hero-dots span {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      animation: float 8s ease-in-out infinite;
+    }
+    .hero-dots span:nth-child(1) { width:300px; height:300px; top:-80px; right:-60px; animation-delay:0s; }
+    .hero-dots span:nth-child(2) { width:180px; height:180px; bottom:80px; left:5%; animation-delay:2s; }
+    .hero-dots span:nth-child(3) { width:100px; height:100px; top:30%; left:40%; animation-delay:4s; }
+    .hero-dots span:nth-child(4) { width:60px; height:60px; top:20%; right:20%; animation-delay:1s; }
+    .hero-dots span:nth-child(5) { width:40px; height:40px; bottom:20%; right:35%; animation-delay:3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .hero-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: center;
+      position: relative; z-index: 1;
+      padding: 80px 0 60px;
+    }
+
+    .hero-text {}
+
+    .hero-kota {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.95);
+      font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 100px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-kota svg { width: 14px; height: 14px; }
+
+    .hero-title {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900; line-height: 1.1;
+      color: white; margin-bottom: 20px;
+    }
+    .hero-title span {
+      background: linear-gradient(90deg, #56CCF2, #a8e6ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 17px; color: rgba(255,255,255,.82);
+      line-height: 1.7; margin-bottom: 36px; max-width: 480px;
+    }
+
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+
+    .hero-stats {
+      display: flex; gap: 32px;
+    }
+    .stat { }
+    .stat-num {
+      font-size: 28px; font-weight: 800; color: white; line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px; color: rgba(255,255,255,.65); margin-top: 2px;
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    .phone-mockup {
+      width: 280px;
+      background: #0a0a0a;
+      border-radius: 46px;
+      padding: 12px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.15),
+        0 32px 80px rgba(0,0,0,.5),
+        0 0 100px rgba(47,128,237,.3);
+      position: relative; z-index: 2;
+      flex-shrink: 0;
+    }
+    .phone-notch {
+      width: 100px; height: 28px;
+      background: #0a0a0a;
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto 8px;
+      position: relative; z-index: 10;
+    }
+    .phone-screen {
+      border-radius: 36px;
+      overflow: hidden;
+      background: #F5F7F9;
+    }
+    .phone-screen img {
+      width: 100%; height: 460px;
+      object-fit: cover; object-position: top;
+    }
+
+    .hero-floating-card {
+      position: absolute;
+      background: white;
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.2);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 600;
+      white-space: nowrap; z-index: 3;
+    }
+    .hero-floating-card .icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .card-1 { top: 10%; left: -40px; animation: cardFloat 4s ease-in-out infinite; }
+    .card-2 { bottom: 15%; left: -30px; animation: cardFloat 4s ease-in-out infinite 1.5s; }
+    .card-3 { top: 20%; right: -30px; animation: cardFloat 4s ease-in-out infinite .8s; }
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ============================================================
+       WAVE DIVIDER
+    ============================================================ */
+    .wave { display: block; width: 100%; margin-bottom: -4px; }
+
+    /* ============================================================
+       STATS BAR
+    ============================================================ */
+    .stats-bar {
+      background: white;
+      box-shadow: var(--shadow);
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .stat-item {
+      padding: 32px 24px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item .num {
+      font-size: 36px; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .stat-item .lbl {
+      font-size: 13px; color: var(--text-light); margin-top: 4px; font-weight: 500;
+    }
+
+    /* ============================================================
+       FEATURES
+    ============================================================ */
+    .features { background: var(--bg); }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 56px;
+    }
+
+    .feat-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: 0 2px 16px rgba(0,86,179,.06);
+      border: 1px solid var(--border);
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--blue-light));
+      opacity: 0; transition: opacity .3s;
+    }
+    .feat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .feat-card:hover::before { opacity: 1; }
+
+    .feat-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 20px;
+    }
+    .feat-icon.blue { background: rgba(47,128,237,.12); }
+    .feat-icon.cyan { background: rgba(86,204,242,.15); }
+    .feat-icon.green { background: rgba(52,199,89,.12); }
+    .feat-icon.orange { background: rgba(255,149,0,.12); }
+    .feat-icon.purple { background: rgba(175,82,222,.12); }
+    .feat-icon.red { background: rgba(255,59,48,.12); }
+
+    .feat-title {
+      font-size: 17px; font-weight: 700; margin-bottom: 10px;
+    }
+    .feat-desc { font-size: 14px; color: var(--text-light); line-height: 1.6; }
+
+    /* ============================================================
+       HOW IT WORKS
+    ============================================================ */
+    .how { background: white; }
+
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 40px; margin-top: 56px; position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute; top: 36px; left: calc(16.66% + 24px); right: calc(16.66% + 24px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--blue-light));
+      z-index: 0;
+    }
+
+    .step {
+      text-align: center; position: relative; z-index: 1;
+    }
+    .step-num {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      color: white; font-size: 24px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(47,128,237,.4);
+    }
+    .step-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-size: 14px; color: var(--text-light); line-height: 1.6; }
+
+    /* ============================================================
+       PREVIEW (MAP + BUS)
+    ============================================================ */
+    .preview { background: var(--bg); }
+
+    .preview-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: center; margin-top: 56px;
+    }
+
+    .preview-img-wrap {
+      position: relative;
+    }
+    .preview-img-wrap img {
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+    }
+    .preview-tag {
+      position: absolute; bottom: 16px; left: 16px;
+      background: white; border-radius: 12px;
+      padding: 8px 14px; box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      font-size: 12px; font-weight: 600; color: var(--blue);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .preview-tag::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%;
+      background: #34C759; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .6; transform: scale(1.3); }
+    }
+
+    .preview-list { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .preview-item {
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .preview-item-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(47,128,237,.3);
+    }
+    .preview-item-text {}
+    .preview-item-title { font-size: 15px; font-weight: 700; }
+    .preview-item-desc { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+
+    /* ============================================================
+       TECH STACK
+    ============================================================ */
+    .tech { background: white; }
+
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 24px; margin-top: 56px;
+    }
+
+    .tech-group {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 28px;
+      border: 1px solid var(--border);
+    }
+    .tech-group-title {
+      font-size: 13px; font-weight: 700; color: var(--blue);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+    }
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tech-tag {
+      background: white; border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 600; color: var(--text);
+      transition: all .2s; display: flex; align-items: center; gap: 6px;
+    }
+    .tech-tag:hover {
+      border-color: var(--blue-mid); color: var(--blue);
+      background: rgba(47,128,237,.05);
+    }
+    .tech-tag .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot-blue { background: #0056B3; }
+    .dot-green { background: #34C759; }
+    .dot-orange { background: #FF9500; }
+    .dot-purple { background: #AF52DE; }
+    .dot-red { background: #FF2D20; }
+    .dot-cyan { background: #32ADE6; }
+
+    /* ============================================================
+       DOWNLOAD SECTION
+    ============================================================ */
+    .download {
+      background: linear-gradient(145deg, #0D3B7A 0%, #0056B3 45%, #2F80ED 100%);
+      position: relative; overflow: hidden;
+    }
+    .download::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(86,204,242,.12) 0%, transparent 60%);
+    }
+    .download-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: center;
+      padding: 80px 0; position: relative; z-index: 1;
+    }
+
+    .download-text {}
+    .download-kota {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.9);
+      font-size: 13px; font-weight: 600;
+      padding: 6px 16px; border-radius: 100px; margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .download-title {
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 900; color: white; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .download-title span {
+      background: linear-gradient(90deg, #56CCF2, #a8e6ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .download-desc {
+      font-size: 16px; color: rgba(255,255,255,.78);
+      line-height: 1.7; margin-bottom: 36px;
+    }
+
+    .download-btn-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+
+    .btn-download {
+      display: inline-flex; align-items: center; gap: 14px;
+      background: white; color: var(--blue);
+      border-radius: 18px; padding: 16px 28px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; font-size: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      transition: all .3s; cursor: pointer;
+      text-decoration: none; border: none;
+    }
+    .btn-download:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.35);
+    }
+    .btn-download .icon-wrap {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-download .icon-wrap svg { width: 26px; height: 26px; fill: white; }
+    .btn-download-text {}
+    .btn-download-text small {
+      display: block; font-size: 11px; font-weight: 500;
+      color: var(--text-light); margin-bottom: 1px;
+    }
+
+    .download-note {
+      font-size: 12px; color: rgba(255,255,255,.55);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .download-note svg { width: 14px; height: 14px; }
+
+    .download-visual {
+      display: flex; justify-content: center; align-items: flex-end; gap: 20px;
+    }
+    .dl-phone {
+      width: 220px;
+      background: #0a0a0a;
+      border-radius: 40px; padding: 10px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.12),
+        0 24px 64px rgba(0,0,0,.5);
+    }
+    .dl-phone-screen {
+      border-radius: 32px; overflow: hidden; height: 380px;
+    }
+    .dl-phone-screen img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top;
+    }
+    .dl-phone-2 { transform: scale(.88) translateY(24px); opacity: .7; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: #0A1628;
+      color: rgba(255,255,255,.7);
+      padding: 48px 0 32px;
+    }
+    .footer-inner {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px; margin-bottom: 40px;
+    }
+    .footer-brand .nav-logo { margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
+    .footer-col-title {
+      font-size: 13px; font-weight: 700; color: white;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-size: 14px; color: rgba(255,255,255,.6);
+      transition: color .2s;
+    }
+    .footer-links a:hover { color: white; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px;
+    }
+    .footer-bottom a { color: var(--blue-light); }
+
+    /* ============================================================
+       MOBILE MENU
+    ============================================================ */
+    .mobile-menu {
+      display: none;
+      position: fixed; top: 68px; left: 0; right: 0;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      z-index: 998; padding: 20px 24px;
+      flex-direction: column; gap: 16px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 15px; font-weight: 500; color: var(--text);
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+
+    /* ============================================================
+       SCROLL ANIMATION
+    ============================================================ */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-desc { margin: 0 auto 36px; }
+      .hero-actions { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-visual { display: none; }
+
+      .steps-grid::before { display: none; }
+      .steps-grid { grid-template-columns: 1fr; gap: 24px; }
+      .step { max-width: 400px; margin: 0 auto; }
+
+      .preview-grid { grid-template-columns: 1fr; }
+      .download-inner { grid-template-columns: 1fr; text-align: center; }
+      .download-btn-wrap { align-items: center; }
+      .download-visual { display: none; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-btn-desktop { display: none; }
+      .hamburger { display: flex; }
+
+      .section { padding: 64px 0; }
+
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3) { border-top: 1px solid var(--border); }
+      .stat-item:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
+
+      .tech-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 32px; }
+      .hero-stats { gap: 20px; }
+      .btn-download { padding: 14px 20px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR
+  ============================================================ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          <img src="busguide/login/assets/icon/icon.png" alt="Bus Guide Logo" />
+          <span>Bus Guide</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#fitur">Fitur</a></li>
+          <li><a href="#cara-kerja">Cara Kerja</a></li>
+          <li><a href="#preview">Preview</a></li>
+          <li><a href="#teknologi">Teknologi</a></li>
+        </ul>
+        <a href="busguide/login/build/app/outputs/flutter-apk/bus-guide.apk"
+           download="BusGuide.apk"
+           class="btn btn-primary nav-btn nav-btn-desktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 15V3M12 15l-4-4M12 15l4-4M3 19h18"/>
+          </svg>
+          Download APK
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#fitur" onclick="closeMobile()">Fitur</a>
+    <a href="#cara-kerja" onclick="closeMobile()">Cara Kerja</a>
+    <a href="#preview" onclick="closeMobile()">Preview</a>
+    <a href="#teknologi" onclick="closeMobile()">Teknologi</a>
+    <a href="busguide/login/build/app/outputs/flutter-apk/app-debug.apk"
+       download="BusGuide.apk"
+       style="color:#0056B3;font-weight:700;">
+      ⬇ Download APK
+    </a>
+  </div>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero" id="home">
+    <div class="hero-dots">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <div class="hero-kota">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            Malang Raya, Jawa Timur
+          </div>
+          <h1 class="hero-title">
+            Naik Bus <span>Jadi Lebih</span><br />Mudah & Pintar
+          </h1>
+          <p class="hero-desc">
+            Bus Guide membantu kamu menemukan rute bus terbaik, cek jadwal real-time,
+            lihat halte di peta, dan jelajahi wisata di sekitar halte — semua dalam
+            satu aplikasi.
+          </p>
+          <div class="hero-actions">
+            <a href="busguide/login/build/app/outputs/flutter-apk/app-debug.apk"
+               download="BusGuide.apk"
+               class="btn btn-white" style="font-size:16px; padding:14px 32px;">
+              <svg viewBox="0 0 24 24" fill="currentColor" style="width:22px;height:22px;">
+                <path d="M17.523 15.341l-.006-.006c.341-.468.621-.98.832-1.527a7.945 7.945 0 000-5.616 7.963 7.963 0 00-1.72-2.563 7.952 7.952 0 00-2.563-1.721 7.95 7.95 0 00-5.616 0A7.963 7.963 0 006 5.629a7.952 7.952 0 00-1.721 2.563 7.95 7.95 0 000 5.616A7.963 7.963 0 006 16.371c.739.738 1.594 1.311 2.563 1.72.98.41 2.01.614 3.096.614h.002c.26 0 .521-.013.778-.038L14.84 21l1.938-1.938-1.398-1.398 2.143-2.323zM6.879 14.879a5.976 5.976 0 01-1.75-4.25 5.976 5.976 0 011.75-4.25 5.976 5.976 0 014.25-1.75 5.976 5.976 0 014.25 1.75 5.976 5.976 0 011.75 4.25 5.976 5.976 0 01-1.75 4.25 5.976 5.976 0 01-4.25 1.75 5.976 5.976 0 01-4.25-1.75zm11 7.829l-2.36-2.36 1.938-1.938 2.36 2.36-1.938 1.938z"/>
+              </svg>
+              Download Gratis
+            </a>
+            <a href="#fitur" class="btn btn-outline"
+               style="color:white; border-color:rgba(255,255,255,.5); font-size:16px; padding:14px 32px;">
+              Lihat Fitur
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="stat-num">10+</div>
+              <div class="stat-label">Halte Bus</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">5+</div>
+              <div class="stat-label">Rute Aktif</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">Gratis</div>
+              <div class="stat-label">Tanpa Biaya</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <!-- Floating cards -->
+          <div class="hero-floating-card card-1">
+            <div class="icon" style="background:rgba(52,199,89,.15);">🚏</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1A1A2E;">Halte Ditemukan</div>
+              <div style="font-size:11px;font-weight:400;color:#5A6478;">3 halte terdekat dari lokasimu</div>
+            </div>
+          </div>
+          <div class="hero-floating-card card-2">
+            <div class="icon" style="background:rgba(255,149,0,.15);">🕐</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1A1A2E;">Jadwal Tersedia</div>
+              <div style="font-size:11px;font-weight:400;color:#5A6478;">Berangkat pukul 08.00 WIB</div>
+            </div>
+          </div>
+          <div class="hero-floating-card card-3">
+            <div class="icon" style="background:rgba(47,128,237,.15);">🗺️</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#1A1A2E;">Rute Ditemukan</div>
+              <div style="font-size:11px;font-weight:400;color:#5A6478;">Est. 25 menit perjalanan</div>
+            </div>
+          </div>
+
+          <!-- Phone mockup -->
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <img src="busguide/login/assets/login_bus.jpeg" alt="App Preview" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C360,80 1080,0 1440,40 L1440,60 L0,60 Z" fill="#ffffff"/>
+  </svg>
+
+  <!-- ============================================================
+       STATS BAR
+  ============================================================ -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="num">10+</div>
+          <div class="lbl">Halte Bus Terdaftar</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="num">5+</div>
+          <div class="lbl">Rute Bus Aktif</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="num">100%</div>
+          <div class="lbl">Gratis & Open Source</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="num">Android</div>
+          <div class="lbl">Platform yang Didukung</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FEATURES
+  ============================================================ -->
+  <section class="section features" id="fitur">
+    <div class="container">
+      <div class="center reveal">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Fitur Unggulan
+        </div>
+        <h2 class="section-title">Semua yang Kamu Butuhkan</h2>
+        <p class="section-sub">Dari pencarian rute hingga info wisata, Bus Guide punya semua fitur untuk perjalananmu.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-card reveal">
+          <div class="feat-icon blue">🗺️</div>
+          <div class="feat-title">Cari Rute Bus</div>
+          <p class="feat-desc">Tentukan halte asal dan tujuan, lalu Bus Guide langsung menampilkan rute bus terbaik lengkap dengan estimasi waktu perjalanan.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon cyan">📍</div>
+          <div class="feat-title">Peta Halte Interaktif</div>
+          <p class="feat-desc">Lihat semua halte bus di peta secara visual menggunakan OpenStreetMap. Deteksi halte terdekat dari posisi GPS kamu saat ini.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon green">📅</div>
+          <div class="feat-title">Jadwal Bus Real-Time</div>
+          <p class="feat-desc">Cek jadwal keberangkatan dan kedatangan bus di setiap halte. Informasi hari operasi dan status aktif tersedia lengkap.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon orange">🏖️</div>
+          <div class="feat-title">Wisata Sekitar Halte</div>
+          <p class="feat-desc">Temukan destinasi wisata yang bisa dijangkau dari setiap halte. Cocok untuk kamu yang ingin jalan-jalan menggunakan bus.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon purple">🔔</div>
+          <div class="feat-title">Notifikasi & Info Terkini</div>
+          <p class="feat-desc">Dapatkan pengumuman terbaru seputar perubahan jadwal, rute baru, atau informasi penting lainnya langsung di aplikasi.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-icon red">📊</div>
+          <div class="feat-title">Rute Populer</div>
+          <p class="feat-desc">Lihat rute yang paling banyak dicari pengguna lain. Berguna sebagai rekomendasi saat kamu bingung mau kemana.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HOW IT WORKS
+  ============================================================ -->
+  <section class="section how" id="cara-kerja">
+    <div class="container">
+      <div class="center reveal">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Cara Penggunaan
+        </div>
+        <h2 class="section-title">Mulai Perjalanan dalam 3 Langkah</h2>
+        <p class="section-sub">Bus Guide dirancang sesederhana mungkin agar siapa pun bisa langsung menggunakannya.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step reveal">
+          <div class="step-num">1</div>
+          <h3 class="step-title">Download & Daftar</h3>
+          <p class="step-desc">Download APK Bus Guide, install di Android kamu, lalu daftar atau login dengan email. Prosesnya cepat, kurang dari 1 menit.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">2</div>
+          <h3 class="step-title">Pilih Rute Perjalanan</h3>
+          <p class="step-desc">Tap "Cari Rute", pilih halte asal dan tujuan. Aplikasi langsung menampilkan rute bus, jadwal, dan estimasi waktu untukmu.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">3</div>
+          <h3 class="step-title">Berangkat dengan Tenang</h3>
+          <p class="step-desc">Ikuti petunjuk rute di peta, cek jadwal keberangkatan, dan jangan lupa lihat wisata menarik di sekitar halte tujuanmu!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PREVIEW
+  ============================================================ -->
+  <section class="section preview" id="preview">
+    <div class="container">
+      <div class="reveal">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          Lihat Tampilan
+        </div>
+        <h2 class="section-title">Peta Interaktif Malang Raya</h2>
+        <p class="section-sub">Semua halte bus ditampilkan di peta secara visual. Tap halte mana saja untuk melihat jadwal dan wisata terdekat.</p>
+      </div>
+
+      <div class="preview-grid">
+        <div class="preview-img-wrap reveal">
+          <img src="busguide/login/assets/map.png" alt="Peta Halte Bus Malang" />
+          <div class="preview-tag">
+            <span></span>Live Map — Malang Raya
+          </div>
+        </div>
+
+        <div class="reveal">
+          <h3 style="font-size:24px; font-weight:800; margin-bottom:8px;">
+            Navigasi Cerdas Berbasis Lokasi
+          </h3>
+          <p style="color:var(--text-light); margin-bottom:28px; line-height:1.7;">
+            Dengan teknologi GPS dan OpenStreetMap, Bus Guide mendeteksi posisimu secara real-time
+            dan menampilkan halte bus yang paling dekat denganmu.
+          </p>
+          <div class="preview-list">
+            <div class="preview-item">
+              <div class="preview-item-icon">📍</div>
+              <div class="preview-item-text">
+                <div class="preview-item-title">Deteksi Lokasi Otomatis</div>
+                <div class="preview-item-desc">GPS secara otomatis mendeteksi posisimu dan menemukan halte terdekat.</div>
+              </div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-item-icon">🛣️</div>
+              <div class="preview-item-text">
+                <div class="preview-item-title">Rute Visual di Peta</div>
+                <div class="preview-item-desc">Jalur rute bus ditampilkan langsung di atas peta untuk kemudahan navigasi.</div>
+              </div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-item-icon">⏱️</div>
+              <div class="preview-item-text">
+                <div class="preview-item-title">Estimasi Waktu Perjalanan</div>
+                <div class="preview-item-desc">Setiap segmen rute dilengkapi jarak dan estimasi waktu tempuh antar halte.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second preview row -->
+      <div class="preview-grid" style="margin-top: 64px;">
+        <div class="reveal" style="order: 2;">
+          <div class="badge">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>
+            Lebih dari Sekadar Bus
+          </div>
+          <h3 style="font-size:24px; font-weight:800; margin-bottom:8px;">
+            Jelajahi Wisata<br />Lewat Halte Bus
+          </h3>
+          <p style="color:var(--text-light); margin-bottom:28px; line-height:1.7;">
+            Setiap halte dilengkapi informasi destinasi wisata yang bisa kamu kunjungi.
+            Jadikan setiap perjalanan bus sebagai petualangan baru!
+          </p>
+          <div class="preview-list">
+            <div class="preview-item">
+              <div class="preview-item-icon">🏖️</div>
+              <div class="preview-item-text">
+                <div class="preview-item-title">Info Wisata Terdekat</div>
+                <div class="preview-item-desc">Tap halte untuk lihat daftar wisata yang bisa dijangkau dengan jalan kaki.</div>
+              </div>
+            </div>
+            <div class="preview-item">
+              <div class="preview-item-icon">📸</div>
+              <div class="preview-item-text">
+                <div class="preview-item-title">Foto & Deskripsi Lengkap</div>
+                <div class="preview-item-desc">Setiap wisata ditampilkan dengan foto, deskripsi, dan lokasi yang jelas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-img-wrap reveal" style="order: 1;">
+          <img src="busguide/login/assets/bus_header.jpeg" alt="Bus Malang Raya"
+               style="height:340px; object-fit:cover; border-radius:20px;" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       TECH STACK
+  ============================================================ -->
+  <section class="section tech" id="teknologi">
+    <div class="container">
+      <div class="center reveal">
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+          Tech Stack
+        </div>
+        <h2 class="section-title">Dibangun dengan Teknologi Modern</h2>
+        <p class="section-sub">Bus Guide menggunakan stack teknologi terkini untuk performa terbaik di semua perangkat.</p>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-group reveal">
+          <div class="tech-group-title">📱 Mobile Application</div>
+          <div class="tech-tags">
+            <span class="tech-tag"><span class="dot dot-cyan"></span>Flutter 3.11+</span>
+            <span class="tech-tag"><span class="dot dot-cyan"></span>Dart</span>
+            <span class="tech-tag"><span class="dot dot-green"></span>Supabase Auth</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>flutter_map</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>Google Maps</span>
+            <span class="tech-tag"><span class="dot dot-orange"></span>Geolocator GPS</span>
+            <span class="tech-tag"><span class="dot dot-purple"></span>Google Fonts</span>
+            <span class="tech-tag"><span class="dot dot-red"></span>flutter_animate</span>
+          </div>
+        </div>
+
+        <div class="tech-group reveal">
+          <div class="tech-group-title">🖥️ Backend & Admin Panel</div>
+          <div class="tech-tags">
+            <span class="tech-tag"><span class="dot dot-red"></span>Laravel 12</span>
+            <span class="tech-tag"><span class="dot dot-orange"></span>PHP 8.2+</span>
+            <span class="tech-tag"><span class="dot dot-orange"></span>Filament v5</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>SQLite</span>
+            <span class="tech-tag"><span class="dot dot-green"></span>Laravel Sanctum</span>
+            <span class="tech-tag"><span class="dot dot-purple"></span>OpenRouteService</span>
+            <span class="tech-tag"><span class="dot dot-cyan"></span>REST API</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>Vite</span>
+          </div>
+        </div>
+
+        <div class="tech-group reveal">
+          <div class="tech-group-title">🗺️ Layanan Peta & Lokasi</div>
+          <div class="tech-tags">
+            <span class="tech-tag"><span class="dot dot-green"></span>OpenStreetMap</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>Google Maps Platform</span>
+            <span class="tech-tag"><span class="dot dot-orange"></span>OpenRouteService</span>
+            <span class="tech-tag"><span class="dot dot-cyan"></span>GPS / Geolocator</span>
+          </div>
+        </div>
+
+        <div class="tech-group reveal">
+          <div class="tech-group-title">🔐 Autentikasi & Keamanan</div>
+          <div class="tech-tags">
+            <span class="tech-tag"><span class="dot dot-green"></span>Supabase Auth</span>
+            <span class="tech-tag"><span class="dot dot-blue"></span>Google Sign-In</span>
+            <span class="tech-tag"><span class="dot dot-red"></span>Laravel Sanctum</span>
+            <span class="tech-tag"><span class="dot dot-purple"></span>Reset Password via Link</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DOWNLOAD SECTION
+  ============================================================ -->
+  <section class="download" id="download">
+    <div class="container">
+      <div class="download-inner">
+        <div class="download-text">
+          <div class="download-kota">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;">
+              <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+            </svg>
+            Tersedia Sekarang · Android
+          </div>
+          <h2 class="download-title">
+            Download Bus Guide<br />
+            <span>Sekarang, Gratis!</span>
+          </h2>
+          <p class="download-desc">
+            Tidak perlu Play Store. Langsung download APK-nya dan install di Android kamu.
+            Mulai perjalanan yang lebih cerdas bersama Bus Guide.
+          </p>
+          <div class="download-btn-wrap">
+            <a href="busguide/login/build/app/outputs/flutter-apk/app-debug.apk"
+               download="BusGuide.apk"
+               class="btn-download">
+              <div class="icon-wrap">
+                <svg viewBox="0 0 24 24">
+                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.42.07 2.4.74 3.22.8 1.23-.24 2.4-.93 3.72-.84 1.57.12 2.75.72 3.53 1.82-3.24 1.94-2.48 5.91.54 7.04-.65 1.66-1.49 3.31-3.01 4.04zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                </svg>
+              </div>
+              <div class="btn-download-text">
+                <small>Download untuk</small>
+                Android APK
+              </div>
+            </a>
+            <div class="download-note">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+              </svg>
+              Aman · Debug Build v1.0.0 · ~85 MB
+            </div>
+          </div>
+        </div>
+
+        <div class="download-visual">
+          <div class="dl-phone dl-phone-2">
+            <div class="dl-phone-screen">
+              <img src="busguide/login/assets/map.png" alt="Map Preview" />
+            </div>
+          </div>
+          <div class="dl-phone">
+            <div class="dl-phone-screen">
+              <img src="busguide/login/assets/login_bus.jpeg" alt="App Preview" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <img src="busguide/login/assets/icon/icon.png" alt="Bus Guide" />
+            <span style="background:linear-gradient(135deg,#56CCF2,#a8e6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:20px;font-weight:800;">
+              Bus Guide
+            </span>
+          </div>
+          <p>Aplikasi panduan transportasi bus untuk warga Malang Raya. Naik bus jadi lebih mudah, lebih cerdas, dan lebih menyenangkan.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Navigasi</div>
+          <div class="footer-links">
+            <a href="#home">Beranda</a>
+            <a href="#fitur">Fitur</a>
+            <a href="#cara-kerja">Cara Kerja</a>
+            <a href="#preview">Preview</a>
+            <a href="#teknologi">Teknologi</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Download</div>
+          <div class="footer-links">
+            <a href="busguide/login/build/app/outputs/flutter-apk/app-debug.apk" download="BusGuide.apk">
+              APK Android
+            </a>
+            <a href="https://github.com" target="_blank">GitHub Repository</a>
+          </div>
+          <div style="margin-top:24px;">
+            <div class="footer-col-title">Teknologi</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+              <span style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;">Flutter</span>
+              <span style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;">Laravel</span>
+              <span style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;">Filament</span>
+              <span style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;">Supabase</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Bus Guide · Malang Raya · MIT License</span>
+        <span>Dibuat dengan ❤️ menggunakan Flutter & Laravel</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       SCRIPTS
+  ============================================================ -->
+  <script>
+    /* ----- Navbar scroll ----- */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    /* ----- Hamburger menu ----- */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+    });
+    function closeMobile() {
+      mobileMenu.classList.remove('open');
+    }
+    document.addEventListener('click', (e) => {
+      if (!navbar.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.classList.remove('open');
+      }
+    });
+
+    /* ----- Scroll reveal ----- */
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, entry.target.dataset.delay || 0);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    // stagger cards in grid
+    document.querySelectorAll('.features-grid .feat-card, .stats-grid .stat-item').forEach((el, i) => {
+      el.dataset.delay = i * 80;
+    });
+
+    reveals.forEach(el => observer.observe(el));
+
+    /* ----- Smooth anchor scroll ----- */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 72;
+          const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
