@@ -258,17 +258,6 @@ Base URL: `/api`
 
 ---
 
-## 🤝 Kontribusi
-
-Kontribusi sangat disambut! Silakan:
-
-1. Fork repositori ini
-2. Buat branch fitur baru (`git checkout -b feature/fitur-baru`)
-3. Commit perubahan (`git commit -m 'feat: tambah fitur baru'`)
-4. Push ke branch (`git push origin feature/fitur-baru`)
-5. Buat Pull Request
-
----
 
 ## 📄 Lisensi
 
