@@ -259,12 +259,6 @@ Base URL: `/api`
 ---
 
 
-## 📄 Lisensi
-
-Proyek ini dilisensikan di bawah [MIT License](LICENSE).
-
----
-
 <div align="center">
 
 Dibuat dengan ❤️ menggunakan Flutter & Laravel
