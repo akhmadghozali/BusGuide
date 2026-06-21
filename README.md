@@ -258,16 +258,6 @@ Base URL: `/api`
 
 ---
 
-## 📸 Screenshot
-
-> *(Screenshot dapat ditambahkan di sini untuk landing page)*
-
-| Home | Cari Rute | Peta Halte | Jadwal |
-|------|-----------|------------|--------|
-| ![Home](docs/screenshots/home.png) | ![Cari Rute](docs/screenshots/cari_rute.png) | ![Peta](docs/screenshots/peta.png) | ![Jadwal](docs/screenshots/jadwal.png) |
-
----
-
 ## 🤝 Kontribusi
 
 Kontribusi sangat disambut! Silakan:
