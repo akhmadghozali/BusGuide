@@ -168,8 +168,8 @@ admins         — Data akun admin panel
 ### 1. Clone Repositori
 
 ```bash
-git clone https://github.com/username/busguide1.git
-cd busguide1
+git clone https://github.com/username/BusGuide.git
+cd BusGuide
 ```
 
 ---
